@@ -1,0 +1,2123 @@
+{
+  "name": "WhatsApp AI Agent with Conversation Memory",
+  "flow": [
+    {
+      "id": 2,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": 3679127,
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 150,
+          "name": "Incoming WhatsApp Message"
+        },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": {
+                "editable": "true"
+              },
+              "label": "Whatsapp receive a New message"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          },
+          {
+            "name": "maxResults",
+            "type": "number",
+            "label": "Maximum number of results"
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "module": "supabase:searchRows",
+      "version": 1,
+      "parameters": {
+        "__IMTCONN__": 10634694
+      },
+      "mapper": {
+        "limit": "1",
+        "table": "chat_sessions",
+        "search": [
+          [
+            {
+              "a": "customer_phone",
+              "b": "{{2.data.messages.key.cleanedSenderPn}}",
+              "o": "text:eq."
+            }
+          ]
+        ]
+      },
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 150
+        },
+        "restore": {
+          "expect": {
+            "table": {
+              "mode": "chose",
+              "label": "chat_sessions",
+              "nested": [
+                {
+                  "name": "search",
+                  "type": "filter",
+                  "label": "Search criteria",
+                  "options": {
+                    "logic": "and",
+                    "store": [
+                      {
+                        "label": "customer_phone",
+                        "value": "customer_phone"
+                      },
+                      {
+                        "label": "chat_history",
+                        "value": "chat_history"
+                      },
+                      {
+                        "label": "last_updated",
+                        "value": "last_updated"
+                      }
+                    ],
+                    "operators": [
+                      {
+                        "label": "Text",
+                        "options": [
+                          {
+                            "label": "Equals",
+                            "value": "text:eq."
+                          },
+                          {
+                            "label": "Does not equal",
+                            "value": "text:neq."
+                          },
+                          {
+                            "label": "Contains (case sensitive)",
+                            "value": "text:like."
+                          },
+                          {
+                            "label": "Contains (case insensitive)",
+                            "value": "text:ilike."
+                          }
+                        ]
+                      },
+                      {
+                        "label": "Numbers",
+                        "options": [
+                          {
+                            "label": "Equals",
+                            "value": "number:eq."
+                          },
+                          {
+                            "label": "Does not equal",
+                            "value": "number:neq."
+                          },
+                          {
+                            "label": "Greater than",
+                            "value": "number:gt."
+                          },
+                          {
+                            "label": "Less than",
+                            "value": "number:lt."
+                          },
+                          {
+                            "label": "Greater than or equal to",
+                            "value": "number:gte."
+                          },
+                          {
+                            "label": "Less than or equal to",
+                            "value": "number:lte."
+                          }
+                        ]
+                      },
+                      {
+                        "label": "Date",
+                        "options": [
+                          {
+                            "label": "Equals",
+                            "value": "date:eq."
+                          },
+                          {
+                            "label": "Does not equal",
+                            "value": "date:neq."
+                          },
+                          {
+                            "label": "Later than",
+                            "value": "date:gt."
+                          },
+                          {
+                            "label": "Earlier than",
+                            "value": "date:lt."
+                          },
+                          {
+                            "label": "Later than or equal to",
+                            "value": "date:gte."
+                          },
+                          {
+                            "label": "Earlier than or equal to",
+                            "value": "date:lte."
+                          }
+                        ]
+                      },
+                      {
+                        "label": "Boolean",
+                        "options": [
+                          {
+                            "label": "Equals",
+                            "value": "boolean:eq."
+                          },
+                          {
+                            "label": "Does not equal",
+                            "value": "boolean:neq."
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "parameters": {
+            "__IMTCONN__": {
+              "data": {
+                "scoped": "true",
+                "connection": "supabase"
+              },
+              "label": "Yusuf's Supabase connection"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "__IMTCONN__",
+            "type": "account:supabase",
+            "label": "Connection",
+            "required": true
+          }
+        ],
+        "expect": [
+          {
+            "name": "table",
+            "type": "select",
+            "label": "Table",
+            "required": true
+          },
+          {
+            "name": "limit",
+            "type": "uinteger",
+            "label": "Limit"
+          },
+          {
+            "name": "search",
+            "type": "filter",
+            "label": "Search criteria",
+            "options": {
+              "logic": "and",
+              "store": [
+                {
+                  "label": "customer_phone",
+                  "value": "customer_phone"
+                },
+                {
+                  "label": "chat_history",
+                  "value": "chat_history"
+                },
+                {
+                  "label": "last_updated",
+                  "value": "last_updated"
+                }
+              ],
+              "operators": [
+                {
+                  "label": "Text",
+                  "options": [
+                    {
+                      "label": "Equals",
+                      "value": "text:eq."
+                    },
+                    {
+                      "label": "Does not equal",
+                      "value": "text:neq."
+                    },
+                    {
+                      "label": "Contains (case sensitive)",
+                      "value": "text:like."
+                    },
+                    {
+                      "label": "Contains (case insensitive)",
+                      "value": "text:ilike."
+                    }
+                  ]
+                },
+                {
+                  "label": "Numbers",
+                  "options": [
+                    {
+                      "label": "Equals",
+                      "value": "number:eq."
+                    },
+                    {
+                      "label": "Does not equal",
+                      "value": "number:neq."
+                    },
+                    {
+                      "label": "Greater than",
+                      "value": "number:gt."
+                    },
+                    {
+                      "label": "Less than",
+                      "value": "number:lt."
+                    },
+                    {
+                      "label": "Greater than or equal to",
+                      "value": "number:gte."
+                    },
+                    {
+                      "label": "Less than or equal to",
+                      "value": "number:lte."
+                    }
+                  ]
+                },
+                {
+                  "label": "Date",
+                  "options": [
+                    {
+                      "label": "Equals",
+                      "value": "date:eq."
+                    },
+                    {
+                      "label": "Does not equal",
+                      "value": "date:neq."
+                    },
+                    {
+                      "label": "Later than",
+                      "value": "date:gt."
+                    },
+                    {
+                      "label": "Earlier than",
+                      "value": "date:lt."
+                    },
+                    {
+                      "label": "Later than or equal to",
+                      "value": "date:gte."
+                    },
+                    {
+                      "label": "Earlier than or equal to",
+                      "value": "date:lte."
+                    }
+                  ]
+                },
+                {
+                  "label": "Boolean",
+                  "options": [
+                    {
+                      "label": "Equals",
+                      "value": "boolean:eq."
+                    },
+                    {
+                      "label": "Does not equal",
+                      "value": "boolean:neq."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "interface": [
+          {
+            "name": "__IMTLENGTH__",
+            "type": "uinteger",
+            "label": "Total number of bundles"
+          },
+          {
+            "name": "__IMTINDEX__",
+            "type": "uinteger",
+            "label": "Bundle order position"
+          },
+          {
+            "name": "customer_phone",
+            "type": "text",
+            "label": "customer_phone"
+          },
+          {
+            "name": "chat_history",
+            "type": "text",
+            "label": "chat_history"
+          },
+          {
+            "name": "last_updated",
+            "type": "text",
+            "label": "last_updated"
+          }
+        ]
+      }
+    },
+    {
+      "id": 15,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "filter": null,
+      "mapper": null,
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 150
+        }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "util:SetVariables",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{3.`__IMTLENGTH__`}}",
+                      "b": "0",
+                      "o": "text:equal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "scope": "roundtrip",
+                "variables": [
+                  {
+                    "name": "message_playload",
+                    "value": "[\r\n  {\r\n    \"role\": \"system\",\r\n    \"content\": \"أنت مساعد ذكي نيابة عني أنا يوسف أحمد. رقم الواتساب هذا مخصص لخدمات الأتمتة فقط. دورك أن ترد على العملاء بصفتي، وتتابع كافة التفاصيل القديمة من الشات، وتجيب على قدر معرفتك فقط دون افتراض أي تفاصيل من دماغك الناتج النهائي يكون نص بس بدون اي اضافات ولا حاجه بولد ولا حاجه خطوط او فواصل نص بس.\"\r\n  },\r\n  {\r\n    \"role\": \"user\",\r\n    \"content\": \"{{2.data.messages.messageBody}}\"\r\n  }\r\n]"
+                  }
+                ]
+              },
+              "metadata": {
+                "designer": {
+                  "x": 900,
+                  "y": 0
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    },
+                    "variables": {
+                      "items": [
+                        null
+                      ]
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "variables",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Variable name",
+                          "required": true
+                        },
+                        {
+                          "name": "value",
+                          "type": "any",
+                          "label": "Variable value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Variable"
+                    },
+                    "type": "array",
+                    "label": "Variables",
+                    "validate": {
+                      "unique": {
+                        "by": "name"
+                      }
+                    }
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "roundtrip",
+                        "execution"
+                      ]
+                    }
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "message_playload",
+                    "type": "any",
+                    "label": "message_playload"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 6,
+              "module": "http:MakeRequest",
+              "version": 4,
+              "parameters": {
+                "tlsType": "",
+                "authenticationType": "noAuth"
+              },
+              "mapper": {
+                "url": "https://api.groq.com/openai/v1/chat/completions",
+                "method": "post",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer YOUR_GROQ_API_KEY"
+                  }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\r\n  \"model\": \"openai/gpt-oss-120b\",\r\n  \"messages\": {{4.message_playload}}\r\n}",
+                "requestCompressedContent": true
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1200,
+                  "y": 0
+                },
+                "restore": {
+                  "expect": {
+                    "method": {
+                      "mode": "chose",
+                      "label": "POST"
+                    },
+                    "headers": {
+                      "mode": "chose",
+                      "items": [
+                        null
+                      ]
+                    },
+                    "contentType": {
+                      "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                    },
+                    "inputMethod": {
+                      "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                    },
+                    "shareCookies": {
+                      "mode": "chose"
+                    },
+                    "parseResponse": {
+                      "mode": "chose"
+                    },
+                    "allowRedirects": {
+                      "mode": "chose"
+                    },
+                    "paginationType": {
+                      "label": "Empty"
+                    },
+                    "queryParameters": {
+                      "mode": "chose"
+                    },
+                    "stopOnHttpError": {
+                      "mode": "chose"
+                    },
+                    "requestCompressedContent": {
+                      "mode": "chose"
+                    }
+                  },
+                  "parameters": {
+                    "tlsType": {
+                      "label": "Empty"
+                    },
+                    "authenticationType": {
+                      "label": "No authenticationUse when no credentials are required for the request."
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "authenticationType",
+                    "type": "select",
+                    "label": "Authentication type",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "noAuth",
+                        "apiKey",
+                        "basicAuth",
+                        "oAuth"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "tlsType",
+                    "type": "select",
+                    "label": "Transport layer security (TLS)",
+                    "validate": {
+                      "enum": [
+                        "mTls",
+                        "tls"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "proxyKeychain",
+                    "type": "keychain:proxy",
+                    "label": "Proxy"
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "url",
+                    "type": "url",
+                    "label": "URL",
+                    "required": true
+                  },
+                  {
+                    "name": "method",
+                    "type": "select",
+                    "label": "Method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "get",
+                        "head",
+                        "post",
+                        "put",
+                        "patch",
+                        "delete",
+                        "options"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "headers",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true,
+                          "validate": {
+                            "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                          }
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Header"
+                    },
+                    "type": "array",
+                    "label": "Headers"
+                  },
+                  {
+                    "name": "queryParameters",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Parameter"
+                    },
+                    "type": "array",
+                    "label": "Query parameters"
+                  },
+                  {
+                    "name": "contentType",
+                    "type": "select",
+                    "label": "Body content type",
+                    "validate": {
+                      "enum": [
+                        "json",
+                        "multipart",
+                        "urlEncoded",
+                        "custom"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "parseResponse",
+                    "type": "boolean",
+                    "label": "Parse response",
+                    "required": true
+                  },
+                  {
+                    "name": "stopOnHttpError",
+                    "type": "boolean",
+                    "label": "Return error if HTTP request fails",
+                    "required": true
+                  },
+                  {
+                    "name": "timeout",
+                    "type": "uinteger",
+                    "label": "Timeout",
+                    "validate": {
+                      "max": 300,
+                      "min": 1
+                    }
+                  },
+                  {
+                    "name": "allowRedirects",
+                    "type": "boolean",
+                    "label": "Allow redirects",
+                    "required": true
+                  },
+                  {
+                    "name": "shareCookies",
+                    "type": "boolean",
+                    "label": "Share cookies with other HTTP modules",
+                    "required": true
+                  },
+                  {
+                    "name": "requestCompressedContent",
+                    "type": "boolean",
+                    "label": "Request compressed content",
+                    "required": true
+                  },
+                  {
+                    "name": "inputMethod",
+                    "type": "select",
+                    "label": "Body input method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "dataStructure",
+                        "jsonString"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "jsonStringBodyContent",
+                    "type": "text",
+                    "label": "Body content",
+                    "required": true
+                  },
+                  {
+                    "name": "paginationType",
+                    "type": "select",
+                    "label": "Pagination type",
+                    "validate": {
+                      "enum": [
+                        "offsetBased",
+                        "pageBased",
+                        "urlBased",
+                        "tokenBased"
+                      ]
+                    }
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "data",
+                    "type": "any",
+                    "label": "Data"
+                  },
+                  {
+                    "name": "statusCode",
+                    "type": "number",
+                    "label": "Status Code"
+                  },
+                  {
+                    "name": "headers",
+                    "spec": [
+                      {
+                        "name": "content-length",
+                        "type": "text",
+                        "label": "Content-Length"
+                      },
+                      {
+                        "name": "content-encoding",
+                        "type": "text",
+                        "label": "Content-Encoding"
+                      },
+                      {
+                        "name": "content-type",
+                        "type": "text",
+                        "label": "Content-Type"
+                      },
+                      {
+                        "name": "server",
+                        "type": "text",
+                        "label": "Server"
+                      },
+                      {
+                        "name": "cache-control",
+                        "type": "text",
+                        "label": "Cache-Control"
+                      },
+                      {
+                        "name": "set-cookie",
+                        "spec": {
+                          "type": "text"
+                        },
+                        "type": "array",
+                        "label": "Set-Cookie"
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Headers"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 17,
+              "module": "supabase:createARow",
+              "version": 1,
+              "parameters": {
+                "__IMTCONN__": 10634694
+              },
+              "filter": null,
+              "mapper": {
+                "table": "chat_sessions",
+                "chat_history": "\r\n  {\r\n    \"role\": \"user\",\r\n    \"content\": \"{{2.data.messages.messageBody}}\"\r\n  },\r\n  {\r\n    \"role\": \"assistant\",\r\n    \"content\": \"{{6.data.choices[].message.content}}\"\r\n  }\r\n",
+                "customer_phone": "{{2.data.messages.key.cleanedSenderPn}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 0
+                },
+                "restore": {
+                  "expect": {
+                    "table": {
+                      "mode": "chose",
+                      "label": "chat_sessions",
+                      "nested": [
+                        {
+                          "help": "Note:\nThis is a Primary Key.<pk/>",
+                          "name": "customer_phone",
+                          "type": "text",
+                          "label": "customer_phone",
+                          "options": null,
+                          "required": false
+                        },
+                        {
+                          "help": "",
+                          "name": "chat_history",
+                          "type": "text",
+                          "label": "chat_history",
+                          "options": null,
+                          "required": false
+                        },
+                        {
+                          "help": "Defaults to now(). ",
+                          "name": "last_updated",
+                          "type": "text",
+                          "label": "last_updated",
+                          "options": null,
+                          "required": false
+                        }
+                      ]
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "supabase"
+                      },
+                      "label": "Yusuf's Supabase connection"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:supabase",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "table",
+                    "type": "select",
+                    "label": "Table",
+                    "required": true
+                  },
+                  {
+                    "name": "customer_phone",
+                    "type": "text"
+                  },
+                  {
+                    "name": "chat_history",
+                    "type": "text"
+                  },
+                  {
+                    "name": "last_updated",
+                    "type": "text"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "customer_phone",
+                    "type": "text",
+                    "label": "customer_phone"
+                  },
+                  {
+                    "name": "chat_history",
+                    "type": "text",
+                    "label": "chat_history"
+                  },
+                  {
+                    "name": "last_updated",
+                    "type": "text",
+                    "label": "last_updated"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 9,
+              "module": "http:MakeRequest",
+              "version": 4,
+              "parameters": {
+                "tlsType": "",
+                "authenticationType": "noAuth"
+              },
+              "mapper": {
+                "url": "https://www.wasenderapi.com/api/send-message",
+                "method": "post",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer YOUR_WASENDERAPI_TOKEN"
+                  }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\r\n  \"to\": \"+{{2.data.messages.key.cleanedSenderPn}}\",\r\n  \"text\": \"{{escapeJSON(6.data.choices[].message.content)}}\"\r\n}",
+                "requestCompressedContent": true
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 0
+                },
+                "restore": {
+                  "expect": {
+                    "method": {
+                      "mode": "chose",
+                      "label": "POST"
+                    },
+                    "headers": {
+                      "mode": "chose",
+                      "items": [
+                        null
+                      ]
+                    },
+                    "contentType": {
+                      "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                    },
+                    "inputMethod": {
+                      "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                    },
+                    "shareCookies": {
+                      "mode": "chose"
+                    },
+                    "parseResponse": {
+                      "mode": "chose"
+                    },
+                    "allowRedirects": {
+                      "mode": "chose"
+                    },
+                    "paginationType": {
+                      "label": "Empty"
+                    },
+                    "queryParameters": {
+                      "mode": "chose"
+                    },
+                    "stopOnHttpError": {
+                      "mode": "chose"
+                    },
+                    "requestCompressedContent": {
+                      "mode": "chose"
+                    }
+                  },
+                  "parameters": {
+                    "tlsType": {
+                      "label": "Empty"
+                    },
+                    "authenticationType": {
+                      "label": "No authenticationUse when no credentials are required for the request."
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "authenticationType",
+                    "type": "select",
+                    "label": "Authentication type",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "noAuth",
+                        "apiKey",
+                        "basicAuth",
+                        "oAuth"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "tlsType",
+                    "type": "select",
+                    "label": "Transport layer security (TLS)",
+                    "validate": {
+                      "enum": [
+                        "mTls",
+                        "tls"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "proxyKeychain",
+                    "type": "keychain:proxy",
+                    "label": "Proxy"
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "url",
+                    "type": "url",
+                    "label": "URL",
+                    "required": true
+                  },
+                  {
+                    "name": "method",
+                    "type": "select",
+                    "label": "Method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "get",
+                        "head",
+                        "post",
+                        "put",
+                        "patch",
+                        "delete",
+                        "options"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "headers",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true,
+                          "validate": {
+                            "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                          }
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Header"
+                    },
+                    "type": "array",
+                    "label": "Headers"
+                  },
+                  {
+                    "name": "queryParameters",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Parameter"
+                    },
+                    "type": "array",
+                    "label": "Query parameters"
+                  },
+                  {
+                    "name": "contentType",
+                    "type": "select",
+                    "label": "Body content type",
+                    "validate": {
+                      "enum": [
+                        "json",
+                        "multipart",
+                        "urlEncoded",
+                        "custom"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "parseResponse",
+                    "type": "boolean",
+                    "label": "Parse response",
+                    "required": true
+                  },
+                  {
+                    "name": "stopOnHttpError",
+                    "type": "boolean",
+                    "label": "Return error if HTTP request fails",
+                    "required": true
+                  },
+                  {
+                    "name": "timeout",
+                    "type": "uinteger",
+                    "label": "Timeout",
+                    "validate": {
+                      "max": 300,
+                      "min": 1
+                    }
+                  },
+                  {
+                    "name": "allowRedirects",
+                    "type": "boolean",
+                    "label": "Allow redirects",
+                    "required": true
+                  },
+                  {
+                    "name": "shareCookies",
+                    "type": "boolean",
+                    "label": "Share cookies with other HTTP modules",
+                    "required": true
+                  },
+                  {
+                    "name": "requestCompressedContent",
+                    "type": "boolean",
+                    "label": "Request compressed content",
+                    "required": true
+                  },
+                  {
+                    "name": "inputMethod",
+                    "type": "select",
+                    "label": "Body input method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "dataStructure",
+                        "jsonString"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "jsonStringBodyContent",
+                    "type": "text",
+                    "label": "Body content",
+                    "required": true
+                  },
+                  {
+                    "name": "paginationType",
+                    "type": "select",
+                    "label": "Pagination type",
+                    "validate": {
+                      "enum": [
+                        "offsetBased",
+                        "pageBased",
+                        "urlBased",
+                        "tokenBased"
+                      ]
+                    }
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "data",
+                    "type": "any",
+                    "label": "Data"
+                  },
+                  {
+                    "name": "statusCode",
+                    "type": "number",
+                    "label": "Status Code"
+                  },
+                  {
+                    "name": "headers",
+                    "spec": [
+                      {
+                        "name": "content-length",
+                        "type": "text",
+                        "label": "Content-Length"
+                      },
+                      {
+                        "name": "content-encoding",
+                        "type": "text",
+                        "label": "Content-Encoding"
+                      },
+                      {
+                        "name": "content-type",
+                        "type": "text",
+                        "label": "Content-Type"
+                      },
+                      {
+                        "name": "server",
+                        "type": "text",
+                        "label": "Server"
+                      },
+                      {
+                        "name": "cache-control",
+                        "type": "text",
+                        "label": "Cache-Control"
+                      },
+                      {
+                        "name": "set-cookie",
+                        "spec": {
+                          "type": "text"
+                        },
+                        "type": "array",
+                        "label": "Set-Cookie"
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Headers"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 25,
+              "module": "util:SetVariables",
+              "version": 1,
+              "parameters": {},
+              "filter": {
+                "name": "",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{3.`__IMTLENGTH__`}}",
+                      "b": "0",
+                      "o": "text:notequal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "scope": "roundtrip",
+                "variables": [
+                  {
+                    "name": "message_playload",
+                    "value": "[\n{\r\n    \"role\": \"system\",\r\n    \"content\": \"أنت مساعد ذكي نيابة عني أنا يوسف أحمد. رقم الواتساب هذا مخصص لخدمات الأتمتة فقط. دورك أن ترد على العملاء بصفتي، وتتابع كافة التفاصيل القديمة من الشات، وتجيب على قدر معرفتك فقط دون افتراض أي تفاصيل من دماغك الناتج النهائي يكون نص بس بدون اي اضافات ولا حاجه بولد ولا حاجه خطوط او فواصل نص بس.\"\r\n},\r\n  {\r\n    \"role\": \"user\",\r\n    \"content\": \"{{2.data.messages.messageBody}}\"\r\n  },\n{{3.chat_history}}\n\n]"
+                  }
+                ]
+              },
+              "metadata": {
+                "designer": {
+                  "x": 900,
+                  "y": 300
+                },
+                "restore": {
+                  "expect": {
+                    "scope": {
+                      "label": "One cycle"
+                    },
+                    "variables": {
+                      "items": [
+                        null
+                      ]
+                    }
+                  }
+                },
+                "expect": [
+                  {
+                    "name": "variables",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Variable name",
+                          "required": true
+                        },
+                        {
+                          "name": "value",
+                          "type": "any",
+                          "label": "Variable value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Variable"
+                    },
+                    "type": "array",
+                    "label": "Variables",
+                    "validate": {
+                      "unique": {
+                        "by": "name"
+                      }
+                    }
+                  },
+                  {
+                    "name": "scope",
+                    "type": "select",
+                    "label": "Variable lifetime",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "roundtrip",
+                        "execution"
+                      ]
+                    }
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "message_playload",
+                    "type": "any",
+                    "label": "message_playload"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 19,
+              "module": "http:MakeRequest",
+              "version": 4,
+              "parameters": {
+                "tlsType": "",
+                "authenticationType": "noAuth"
+              },
+              "filter": {
+                "name": "",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{3.`__IMTLENGTH__`}}",
+                      "b": "0",
+                      "o": "text:notequal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "url": "https://api.groq.com/openai/v1/chat/completions",
+                "method": "post",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer YOUR_GROQ_API_KEY"
+                  }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\r\n  \"model\": \"openai/gpt-oss-120b\",\r\n  \"messages\": {{25.message_playload}}  \n\n\n\r\n}",
+                "requestCompressedContent": true
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1500,
+                  "y": 300
+                },
+                "restore": {
+                  "expect": {
+                    "method": {
+                      "mode": "chose",
+                      "label": "POST"
+                    },
+                    "headers": {
+                      "mode": "chose",
+                      "items": [
+                        null
+                      ]
+                    },
+                    "contentType": {
+                      "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                    },
+                    "inputMethod": {
+                      "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                    },
+                    "shareCookies": {
+                      "mode": "chose"
+                    },
+                    "parseResponse": {
+                      "mode": "chose"
+                    },
+                    "allowRedirects": {
+                      "mode": "chose"
+                    },
+                    "paginationType": {
+                      "label": "Empty"
+                    },
+                    "queryParameters": {
+                      "mode": "chose"
+                    },
+                    "stopOnHttpError": {
+                      "mode": "chose"
+                    },
+                    "requestCompressedContent": {
+                      "mode": "chose"
+                    }
+                  },
+                  "parameters": {
+                    "tlsType": {
+                      "label": "Empty"
+                    },
+                    "authenticationType": {
+                      "label": "No authenticationUse when no credentials are required for the request."
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "authenticationType",
+                    "type": "select",
+                    "label": "Authentication type",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "noAuth",
+                        "apiKey",
+                        "basicAuth",
+                        "oAuth"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "tlsType",
+                    "type": "select",
+                    "label": "Transport layer security (TLS)",
+                    "validate": {
+                      "enum": [
+                        "mTls",
+                        "tls"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "proxyKeychain",
+                    "type": "keychain:proxy",
+                    "label": "Proxy"
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "url",
+                    "type": "url",
+                    "label": "URL",
+                    "required": true
+                  },
+                  {
+                    "name": "method",
+                    "type": "select",
+                    "label": "Method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "get",
+                        "head",
+                        "post",
+                        "put",
+                        "patch",
+                        "delete",
+                        "options"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "headers",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true,
+                          "validate": {
+                            "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                          }
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Header"
+                    },
+                    "type": "array",
+                    "label": "Headers"
+                  },
+                  {
+                    "name": "queryParameters",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Parameter"
+                    },
+                    "type": "array",
+                    "label": "Query parameters"
+                  },
+                  {
+                    "name": "contentType",
+                    "type": "select",
+                    "label": "Body content type",
+                    "validate": {
+                      "enum": [
+                        "json",
+                        "multipart",
+                        "urlEncoded",
+                        "custom"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "parseResponse",
+                    "type": "boolean",
+                    "label": "Parse response",
+                    "required": true
+                  },
+                  {
+                    "name": "stopOnHttpError",
+                    "type": "boolean",
+                    "label": "Return error if HTTP request fails",
+                    "required": true
+                  },
+                  {
+                    "name": "timeout",
+                    "type": "uinteger",
+                    "label": "Timeout",
+                    "validate": {
+                      "max": 300,
+                      "min": 1
+                    }
+                  },
+                  {
+                    "name": "allowRedirects",
+                    "type": "boolean",
+                    "label": "Allow redirects",
+                    "required": true
+                  },
+                  {
+                    "name": "shareCookies",
+                    "type": "boolean",
+                    "label": "Share cookies with other HTTP modules",
+                    "required": true
+                  },
+                  {
+                    "name": "requestCompressedContent",
+                    "type": "boolean",
+                    "label": "Request compressed content",
+                    "required": true
+                  },
+                  {
+                    "name": "inputMethod",
+                    "type": "select",
+                    "label": "Body input method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "dataStructure",
+                        "jsonString"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "jsonStringBodyContent",
+                    "type": "text",
+                    "label": "Body content",
+                    "required": true
+                  },
+                  {
+                    "name": "paginationType",
+                    "type": "select",
+                    "label": "Pagination type",
+                    "validate": {
+                      "enum": [
+                        "offsetBased",
+                        "pageBased",
+                        "urlBased",
+                        "tokenBased"
+                      ]
+                    }
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "data",
+                    "type": "any",
+                    "label": "Data"
+                  },
+                  {
+                    "name": "statusCode",
+                    "type": "number",
+                    "label": "Status Code"
+                  },
+                  {
+                    "name": "headers",
+                    "spec": [
+                      {
+                        "name": "content-length",
+                        "type": "text",
+                        "label": "Content-Length"
+                      },
+                      {
+                        "name": "content-encoding",
+                        "type": "text",
+                        "label": "Content-Encoding"
+                      },
+                      {
+                        "name": "content-type",
+                        "type": "text",
+                        "label": "Content-Type"
+                      },
+                      {
+                        "name": "server",
+                        "type": "text",
+                        "label": "Server"
+                      },
+                      {
+                        "name": "cache-control",
+                        "type": "text",
+                        "label": "Cache-Control"
+                      },
+                      {
+                        "name": "set-cookie",
+                        "spec": {
+                          "type": "text"
+                        },
+                        "type": "array",
+                        "label": "Set-Cookie"
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Headers"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 23,
+              "module": "supabase:upsertARecord",
+              "version": 1,
+              "parameters": {
+                "__IMTCONN__": 10634694
+              },
+              "filter": null,
+              "mapper": {
+                "table": "chat_sessions",
+                "chat_history": "  {{3.chat_history}},\n {\r\n    \"role\": \"user\",\r\n    \"content\": \"{{2.data.messages.messageBody}}\"\r\n  },\r\n  {\r\n    \"role\": \"assistant\",\r\n    \"content\": \"{{19.data.choices[].message.content}}\"\r\n  }\r\n",
+                "customer_phone": "{{2.data.messages.key.cleanedSenderPn}}"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1800,
+                  "y": 300
+                },
+                "restore": {
+                  "expect": {
+                    "table": {
+                      "mode": "chose",
+                      "label": "chat_sessions",
+                      "nested": [
+                        {
+                          "help": "Note:\nThis is a Primary Key.<pk/>",
+                          "name": "customer_phone",
+                          "type": "text",
+                          "label": "customer_phone",
+                          "options": null,
+                          "required": false
+                        },
+                        {
+                          "help": "",
+                          "name": "chat_history",
+                          "type": "text",
+                          "label": "chat_history",
+                          "options": null,
+                          "required": false
+                        },
+                        {
+                          "help": "Defaults to now(). ",
+                          "name": "last_updated",
+                          "type": "text",
+                          "label": "last_updated",
+                          "options": null,
+                          "required": false
+                        }
+                      ]
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "supabase"
+                      },
+                      "label": "Yusuf's Supabase connection"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:supabase",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "table",
+                    "type": "select",
+                    "label": "Table",
+                    "required": true
+                  },
+                  {
+                    "name": "customer_phone",
+                    "type": "text"
+                  },
+                  {
+                    "name": "chat_history",
+                    "type": "text"
+                  },
+                  {
+                    "name": "last_updated",
+                    "type": "text"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "customer_phone",
+                    "type": "text",
+                    "label": "customer_phone"
+                  },
+                  {
+                    "name": "chat_history",
+                    "type": "text",
+                    "label": "chat_history"
+                  },
+                  {
+                    "name": "last_updated",
+                    "type": "text",
+                    "label": "last_updated"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 21,
+              "module": "http:MakeRequest",
+              "version": 4,
+              "parameters": {
+                "tlsType": "",
+                "authenticationType": "noAuth"
+              },
+              "mapper": {
+                "url": "https://www.wasenderapi.com/api/send-message",
+                "method": "post",
+                "headers": [
+                  {
+                    "name": "Authorization",
+                    "value": "Bearer YOUR_WASENDERAPI_TOKEN"
+                  }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\r\n  \"to\": \"+{{2.data.messages.key.cleanedSenderPn}}\",\r\n  \"text\": \"{{escapeJSON(19.data.choices[].message.content)}}\"\r\n}",
+                "requestCompressedContent": true
+              },
+              "metadata": {
+                "designer": {
+                  "x": 2100,
+                  "y": 300
+                },
+                "restore": {
+                  "expect": {
+                    "method": {
+                      "mode": "chose",
+                      "label": "POST"
+                    },
+                    "headers": {
+                      "mode": "chose",
+                      "items": [
+                        null
+                      ]
+                    },
+                    "contentType": {
+                      "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                    },
+                    "inputMethod": {
+                      "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                    },
+                    "shareCookies": {
+                      "mode": "chose"
+                    },
+                    "parseResponse": {
+                      "mode": "chose"
+                    },
+                    "allowRedirects": {
+                      "mode": "chose"
+                    },
+                    "paginationType": {
+                      "label": "Empty"
+                    },
+                    "queryParameters": {
+                      "mode": "chose"
+                    },
+                    "stopOnHttpError": {
+                      "mode": "chose"
+                    },
+                    "requestCompressedContent": {
+                      "mode": "chose"
+                    }
+                  },
+                  "parameters": {
+                    "tlsType": {
+                      "label": "Empty"
+                    },
+                    "authenticationType": {
+                      "label": "No authenticationUse when no credentials are required for the request."
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "authenticationType",
+                    "type": "select",
+                    "label": "Authentication type",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "noAuth",
+                        "apiKey",
+                        "basicAuth",
+                        "oAuth"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "tlsType",
+                    "type": "select",
+                    "label": "Transport layer security (TLS)",
+                    "validate": {
+                      "enum": [
+                        "mTls",
+                        "tls"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "proxyKeychain",
+                    "type": "keychain:proxy",
+                    "label": "Proxy"
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "url",
+                    "type": "url",
+                    "label": "URL",
+                    "required": true
+                  },
+                  {
+                    "name": "method",
+                    "type": "select",
+                    "label": "Method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "get",
+                        "head",
+                        "post",
+                        "put",
+                        "patch",
+                        "delete",
+                        "options"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "headers",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true,
+                          "validate": {
+                            "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                          }
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Header"
+                    },
+                    "type": "array",
+                    "label": "Headers"
+                  },
+                  {
+                    "name": "queryParameters",
+                    "spec": {
+                      "name": "value",
+                      "spec": [
+                        {
+                          "name": "name",
+                          "type": "text",
+                          "label": "Name",
+                          "required": true
+                        },
+                        {
+                          "name": "value",
+                          "type": "text",
+                          "label": "Value"
+                        }
+                      ],
+                      "type": "collection",
+                      "label": "Parameter"
+                    },
+                    "type": "array",
+                    "label": "Query parameters"
+                  },
+                  {
+                    "name": "contentType",
+                    "type": "select",
+                    "label": "Body content type",
+                    "validate": {
+                      "enum": [
+                        "json",
+                        "multipart",
+                        "urlEncoded",
+                        "custom"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "parseResponse",
+                    "type": "boolean",
+                    "label": "Parse response",
+                    "required": true
+                  },
+                  {
+                    "name": "stopOnHttpError",
+                    "type": "boolean",
+                    "label": "Return error if HTTP request fails",
+                    "required": true
+                  },
+                  {
+                    "name": "timeout",
+                    "type": "uinteger",
+                    "label": "Timeout",
+                    "validate": {
+                      "max": 300,
+                      "min": 1
+                    }
+                  },
+                  {
+                    "name": "allowRedirects",
+                    "type": "boolean",
+                    "label": "Allow redirects",
+                    "required": true
+                  },
+                  {
+                    "name": "shareCookies",
+                    "type": "boolean",
+                    "label": "Share cookies with other HTTP modules",
+                    "required": true
+                  },
+                  {
+                    "name": "requestCompressedContent",
+                    "type": "boolean",
+                    "label": "Request compressed content",
+                    "required": true
+                  },
+                  {
+                    "name": "inputMethod",
+                    "type": "select",
+                    "label": "Body input method",
+                    "required": true,
+                    "validate": {
+                      "enum": [
+                        "dataStructure",
+                        "jsonString"
+                      ]
+                    }
+                  },
+                  {
+                    "name": "jsonStringBodyContent",
+                    "type": "text",
+                    "label": "Body content",
+                    "required": true
+                  },
+                  {
+                    "name": "paginationType",
+                    "type": "select",
+                    "label": "Pagination type",
+                    "validate": {
+                      "enum": [
+                        "offsetBased",
+                        "pageBased",
+                        "urlBased",
+                        "tokenBased"
+                      ]
+                    }
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "data",
+                    "type": "any",
+                    "label": "Data"
+                  },
+                  {
+                    "name": "statusCode",
+                    "type": "number",
+                    "label": "Status Code"
+                  },
+                  {
+                    "name": "headers",
+                    "spec": [
+                      {
+                        "name": "content-length",
+                        "type": "text",
+                        "label": "Content-Length"
+                      },
+                      {
+                        "name": "content-encoding",
+                        "type": "text",
+                        "label": "Content-Encoding"
+                      },
+                      {
+                        "name": "content-type",
+                        "type": "text",
+                        "label": "Content-Type"
+                      },
+                      {
+                        "name": "server",
+                        "type": "text",
+                        "label": "Server"
+                      },
+                      {
+                        "name": "cache-control",
+                        "type": "text",
+                        "label": "Cache-Control"
+                      },
+                      {
+                        "name": "set-cookie",
+                        "spec": {
+                          "type": "text"
+                        },
+                        "type": "array",
+                        "label": "Set-Cookie"
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Headers"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "eu1.make.com",
+    "notes": []
+  }
+}
